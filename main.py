@@ -26,23 +26,46 @@ def quatjugate(q):
     w, x, y, z = q
     return Matrix([w, -x, -y, -z])
 
+# quaternion rotation (p by q)
+# ----------------------------
+def quatrotate(q, p):
+    
+    if p.shape[0] != 4:
+        print('error: express point as 4x1 quaternion')
+        print('comment: typically, just appending a zero in the first row is sufficient')
+    
+    # rotation of point, p 
+    # by quaterion, q
+    rotated = hamilton_product(hamilton_product(q, p),quatjugate(q))
+    return rotated
+    
+    
 
 # define quatertions we want to manipulate
 # ---------------------------------------
 
+
+var('a b d r R t psi t z', positive = True)
+
 # parametric equations for hypotrochoidal curves
-var('d r R t psi')
 psi = (R-r)/r
 w = 0
 x = (R-r)*cos(t)+d*cos(psi*t)
 y = (R-r)*sin(t)-d*sin(psi*t)
 z = 0
 eqn_hyp = Matrix([w,x,y,z])
-pprint(eqn_hyp)
+#pprint(eqn_hyp)
+
+# figure-8
+# --------
+w = 0
+x = d*cos(t)
+y = d*sin(t)*cos(t)
+z = 0.5*d*sin(t)*sin(t)
+eqn_8 = Matrix([w,x,y,z])
+pprint(eqn_8)
 
 # equation of circle with radius d
-# --------------------------------
-var('t')
 w = 0
 x = d*cos(t)
 y = d*sin(t)
@@ -51,12 +74,31 @@ eqn_cir = Matrix([w,x,y,z])
 pprint(eqn_cir)
 
 # unknowns
-# --------
-var('a b')
 u1 = Matrix([a,b,0,0])
 u2 = quatjugate(u1)
 pprint(u1)
-pprint(u2)
+#pprint(u2)
+
+
+
+
+'''
+Unnecessary complicated thing:
+Let us solve for a, b that generate a hypotrochoidal curves as
+    a function of projection of quaternion rotations around x,y
+
+'''
+#%%
+RHS = quatrotate(u1,eqn_cir)
+LHS = eqn_8
+pprint(LHS)
+print('=')
+pprint(RHS)
+
+#EQNS = LHS-RHS
+#equations = Eq(EQNS[1],EQNS[2],EQNS[3])
+#solutions = solve(equations, a)
+#pprint(solutions)
 
 
 
@@ -64,9 +106,7 @@ pprint(u2)
 
 
 
-
-
-# examples
+# test examples
 # --------
 # var('w x y z')
 # q1 = Matrix([w, x, y, z])
