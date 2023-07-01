@@ -7,6 +7,7 @@ Created on Wed Jun 28 07:35:05 2023
 """
 
 # import stuff
+#-------------
 from sympy import *
 
 # Hamilton product
@@ -41,13 +42,13 @@ def quatrotate(q, p):
     
     
 
-# define quatertions we want to manipulate
-# ---------------------------------------
+#%% parametric equations for various curves
+# -----------------------------------------
 
-
+# variables
 var('a b d r R t psi t z', positive = True)
 
-# parametric equations for hypotrochoidal curves
+# hypotrochoidal curves
 psi = (R-r)/r
 w = 0
 x = (R-r)*cos(t)+d*cos(psi*t)
@@ -56,27 +57,62 @@ z = 0
 eqn_hyp = Matrix([w,x,y,z])
 #pprint(eqn_hyp)
 
-# figure-8
-# --------
+# lemniscate of Gerono
 w = 0
 x = d*cos(t)
 y = d*sin(t)*cos(t)
-z = 0.5*d*sin(t)*sin(t)
-eqn_8 = Matrix([w,x,y,z])
-pprint(eqn_8)
+z = 0 #0.5*d*sin(t)*sin(t)
+eqn_8_1 = Matrix([w,x,y,z])
+#pprint(eqn_8_1)
 
-# equation of circle with radius d
+# lemniscate of Bernoulli
+c2 = d   # half-width: distance from crossing point to horiz extreme (tunable)
+w = 0
+x = c2*cos(t)/(1+sin(t)*sin(t))
+y = c2*sin(t)*cos(t)/(1+sin(t)*sin(t))
+z = 0 #0.5*d*sin(t)*sin(t)
+eqn_8_2 = Matrix([w,x,y,z])
+#pprint(eqn_8_2)
+
+# lemniscate of Booth
+
+# there are conditions for these (oval, indented oval, lemniscate, isolated circles, figure-8)
+
+#circle
+ca = d
+cb = d
+
+#oval
+ca = d   
+cb = d/sqrt(2)
+
+# centered conic
+ca = sqrt(d)   # there are conditions for these (oval, indented oval, lemniscate, isolated circles, figure-8)
+cb = sqrt(d)
+
+w = 0
+x = cb*ca*cb*cos(t)/(cb*cb*cos(t)*cos(t) + ca*ca*sin(t)*sin(t))
+y = ca*ca*cb*sin(t)/(cb*cb*cos(t)*cos(t) + ca*ca*sin(t)*sin(t))
+z = 0 
+eqn_8_3 = Matrix([w,x,y,z])
+pprint(eqn_8_3)
+
+
+
+
+#%% circle with radius d
+# ----------------------
 w = 0
 x = d*cos(t)
 y = d*sin(t)
 z = 0
 eqn_cir = Matrix([w,x,y,z])
-pprint(eqn_cir)
+#pprint(eqn_cir)
 
-# unknowns
-u1 = Matrix([a,b,0,0])
-u2 = quatjugate(u1)
-pprint(u1)
+#%% unknown parameters (for which we will solve)
+u = Matrix([a,b,0,0])  # given rotation about x and y
+#u2 = quatjugate(u1)
+#pprint(u)
 #pprint(u2)
 
 
@@ -89,16 +125,23 @@ Let us solve for a, b that generate a hypotrochoidal curves as
 
 '''
 #%%
-RHS = quatrotate(u1,eqn_cir)
-LHS = eqn_8
-pprint(LHS)
-print('=')
-pprint(RHS)
+RHS = quatrotate(u,eqn_cir)
+LHS = eqn_8_3
+#pprint(LHS)
+#print('=')
+#pprint(RHS)
 
-#EQNS = LHS-RHS
+EQNS = LHS-RHS
+#pprint(EQNS)
+
+#%%
+solutions = nonlinsolve([EQNS[1], EQNS[2]], [a, b])
+
 #equations = Eq(EQNS[1],EQNS[2],EQNS[3])
 #solutions = solve(equations, a)
+#solutions.args[0] # when not a list
 #pprint(solutions)
+pprint(solutions.args[0].simplify())
 
 
 
