@@ -9,6 +9,9 @@ Created on Wed Jun 28 07:35:05 2023
 # import stuff
 #-------------
 from sympy import *
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 # Hamilton product
 # ----------------
@@ -74,28 +77,23 @@ z = 0 #0.5*d*sin(t)*sin(t)
 eqn_8_2 = Matrix([w,x,y,z])
 #pprint(eqn_8_2)
 
-# lemniscate of Booth
+# # lemniscate of Booth (for later exploration)
 
-# there are conditions for these (oval, indented oval, lemniscate, isolated circles, figure-8)
-
-#circle
-ca = d
-cb = d
-
-#oval
-ca = d   
-cb = d/sqrt(2)
-
-# centered conic
-ca = sqrt(d)   # there are conditions for these (oval, indented oval, lemniscate, isolated circles, figure-8)
-cb = sqrt(d)
-
-w = 0
-x = cb*ca*cb*cos(t)/(cb*cb*cos(t)*cos(t) + ca*ca*sin(t)*sin(t))
-y = ca*ca*cb*sin(t)/(cb*cb*cos(t)*cos(t) + ca*ca*sin(t)*sin(t))
-z = 0 
-eqn_8_3 = Matrix([w,x,y,z])
-pprint(eqn_8_3)
+# #circle
+# ca = d
+# cb = d
+# #oval
+# ca = d   
+# cb = d/sqrt(2)
+# # centered conic
+# ca = sqrt(d)   # there are conditions for these (oval, indented oval, lemniscate, isolated circles, figure-8)
+# cb = sqrt(d)
+# w = 0
+# x = cb*ca*cb*cos(t)/(cb*cb*cos(t)*cos(t) + ca*ca*sin(t)*sin(t))
+# y = ca*ca*cb*sin(t)/(cb*cb*cos(t)*cos(t) + ca*ca*sin(t)*sin(t))
+# z = 0 
+# eqn_8_3 = Matrix([w,x,y,z])
+# pprint(eqn_8_3)
 
 
 
@@ -126,7 +124,7 @@ Let us solve for a, b that generate a hypotrochoidal curves as
 '''
 #%%
 RHS = quatrotate(u,eqn_cir)
-LHS = eqn_8_3
+LHS = eqn_8_2
 #pprint(LHS)
 #print('=')
 #pprint(RHS)
@@ -142,6 +140,52 @@ solutions = nonlinsolve([EQNS[1], EQNS[2]], [a, b])
 #solutions.args[0] # when not a list
 #pprint(solutions)
 pprint(solutions.args[0].simplify())
+
+#%% plot stuff
+
+plt.figure()
+plt.axis([-2,2,-2,2])
+r1   = 1
+#plt_type = 'circle'
+#plt_type = 'gerono'
+plt_type = 'bernoulli'
+#plt_type = 'booth'
+
+if plt_type == 'booth':
+    
+    # for oval: r/sqrt(2) < r2 < r*sqrt(2)
+    #r2  = r*sqrt(2)
+    r2  = r1/sqrt(2)
+
+    # for circle: r2 = r1
+    r2  = r1
+
+
+
+for t in np.arange(0,2*np.pi,0.1):
+    
+    if plt_type == 'circle':
+        xs = r1*cos(t)
+        ys = r1*sin(t)
+    
+    if plt_type == 'gerono':
+        xs = r1*cos(t)
+        ys = r1*sin(t)*cos(t)
+    
+    if plt_type == 'bernoulli':
+        xs = r1*cos(t)/(1+sin(t)*sin(t))
+        ys = r1*sin(t)*cos(t)/(1+sin(t)*sin(t))
+        
+    if plt_type == 'booth':
+        xs = r2*r1*r2*cos(t)/(r2*r2*cos(t)*cos(t) + r1*r1*sin(t)*sin(t))
+        ys = r2*r1*r2*sin(t)/(r2*r2*cos(t)*cos(t) + r1*r1*sin(t)*sin(t))
+    
+    plt.plot(xs,ys,'-bo')
+plt.show()
+
+
+
+
 
 
 
