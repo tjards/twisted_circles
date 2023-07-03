@@ -16,6 +16,7 @@ Plot stuff here for exploration:
 #-------------
 from sympy import *
 import matplotlib.pyplot as plt
+import mpl_toolkits.mplot3d.axes3d as p3
 import numpy as np
 #import time
 
@@ -61,7 +62,7 @@ def quatrotate(q, p):
 # variables
 #var('a b d d2 r R t psi t z', positive = True)
 # let is use the "d" parameter as the radius of reference circle
-a, b, d, d2, r, R, t, psi, t, z= symbols('a b d d2 r R t psi t z')
+a, b, d, d2, r, R, t, psi, t = symbols('a b d d2 r R t psi t')
 
 
 #%% circle with radius d
@@ -78,7 +79,7 @@ eqn_cir = Matrix([w,x,y,z])
 w = 0
 x = d*cos(t)
 y = d*sin(t)*cos(t)
-z = 0 #0.5*d*sin(t)*sin(t)
+z = 0#0.5*d*sin(t)*sin(t)
 eqn_8ger = Matrix([w,x,y,z])
 #pprint(eqn_8_1)
 
@@ -119,8 +120,7 @@ u = Matrix([a,b,0,0])  # given rotation about x and y
 RHS = quatrotate(u,eqn_cir)
 
 # travis - this is where you enter the curve:
-
-LHS = eqn_8bow  
+LHS = eqn_8ger 
 
 #pprint(LHS)
 #print('=')
@@ -135,16 +135,38 @@ solutions = nonlinsolve([EQNS[1], EQNS[2]], [a, b])
 
 
 #%% Try it
-
+radius = 4
 quaternion_terms = solutions.args[0].simplify()
 #pprint(quaternion_terms)
 QED = quatrotate(Matrix([quaternion_terms[0],quaternion_terms[1],0,0]),eqn_cir)
-QED = QED.subs(d, 2)
 pprint(QED)
+QED = QED.subs(d, radius)
+# plot the 2-d projection
 plot_parametric((QED[1], QED[2]),(t,-np.pi,np.pi))
     
+# plot the 3-d trajectory
+ax = plt.figure().add_subplot(projection='3d')
+ax.set_xlim3d([-5, 5])
+ax.set_ylim3d([-5, 5])
+ax.set_zlim3d([-5, 5])
 
+# initial state (cartesian)
+x = np.array([0,radius,0,0])
+# for all angles
+for i in np.arange(0,2*np.pi,0.1):
+    
+    x_prev = x
+    eqn_cir_ = eqn_cir.subs({d:radius, t:i})
+    quaternion_terms_ = quaternion_terms.subs(t, i)
+    pos = quatrotate(np.array([quaternion_terms_[0],quaternion_terms_[1],0,0]),eqn_cir_)
+    x = pos
+    plt.pause(0.01)
+    ax.plot([x_prev[1],x[1]],[x_prev[2], x[2]],[x_prev[3], x[3]],'-b.')
+    
+#ax.title('Curve')
+plt.show()
 
+ 
 
 
 #%% For Later
