@@ -5,20 +5,23 @@ Created on Wed Jun 28 07:35:05 2023
 
 @author: tjards
 
-play here:
+Plot stuff here for exploration:
     
     https://www.desmos.com/calculator/65ps3jwzqn
 
 
 """
 
-# import stuff
+#%% import stuff
 #-------------
 from sympy import *
 import matplotlib.pyplot as plt
 import numpy as np
 #import time
 
+
+#%% useful functions
+# ------------------
 
 # Hamilton product
 # ----------------
@@ -56,68 +59,111 @@ def quatrotate(q, p):
 # -----------------------------------------
 
 # variables
-var('a b d r R t psi t z', positive = True)
+#var('a b d d2 r R t psi t z', positive = True)
+# let is use the "d" parameter as the radius of reference circle
+a, b, d, d2, r, R, t, psi, t, z= symbols('a b d d2 r R t psi t z')
 
-# hypotrochoidal curves
+
+#%% circle with radius d
 # ----------------------
-psi = (R-r)/r
 w = 0
-x = (R-r)*cos(t)+d*cos(psi*t)
-y = (R-r)*sin(t)-d*sin(psi*t)
+x = d*cos(t)
+y = d*sin(t)
 z = 0
-eqn_hyp = Matrix([w,x,y,z])
-#pprint(eqn_hyp)
+eqn_cir = Matrix([w,x,y,z])
+#pprint(eqn_cir)
 
-# lemniscate of Gerono
+# 2D // lemniscate of Gerono
 # -------------------
 w = 0
 x = d*cos(t)
 y = d*sin(t)*cos(t)
 z = 0 #0.5*d*sin(t)*sin(t)
-eqn_8_1 = Matrix([w,x,y,z])
+eqn_8ger = Matrix([w,x,y,z])
 #pprint(eqn_8_1)
 
-# lemniscate of Bernoulli
+# 2D // lemniscate of Bernoulli
 # -----------------------
-c2 = d   # half-width: distance from crossing point to horiz extreme (tunable)
+# d is half-width: distance from crossing point to horiz extreme (tunable)
 w = 0
-x = c2*cos(t)/(1+sin(t)*sin(t))
-y = c2*sin(t)*cos(t)/(1+sin(t)*sin(t))
+x = d*cos(t)/(1+sin(t)*sin(t))
+y = d*sin(t)*cos(t)/(1+sin(t)*sin(t))
 z = 0 #0.5*d*sin(t)*sin(t)
-eqn_8_2 = Matrix([w,x,y,z])
+eqn_8ber = Matrix([w,x,y,z])
 #pprint(eqn_8_2)
 
-# Vivians curve
-# https://mathworld.wolfram.com/VivianisCurve.html
-# -------------
-c3 = d
-w = 0
-x = c3*(1+cos(t))
-y = c3*sin(t)
-z = 2*c3*sin(t/2)
-eqn_8_3 = Matrix([w,x,y,z])
-
-# dumbell curve (sextic curve), bowtie
+# 2D // dumbell curve (sextic curve), bowtie
 # https://mathcurve.com/courbes2d.gb/doublegouttedeau/doublegouttedeau.shtml
 # -----------------------------------
-c4 = d
-c5 = d
+d2 = d
 w = 0
-x = c4*cos(t)
-y = ((c4*c4)/c5)*cos(t)*cos(t)*sin(t)
+x = d*cos(t)
+y = ((d*d)/d2)*cos(t)*cos(t)*sin(t)
 z = 0
-eqn_8_4 = Matrix([w,x,y,z])
+eqn_8bow = Matrix([w,x,y,z])
 
-#Cayley's sextet
+# 2D // Cayley's sextet
 # --------------
 w = 0
-x = cos(t)*cos(t)*cos(t)*cos(3*t)
-y = cos(t)*cos(t)*cos(t)*sin(3*t)
+x = d*cos(t)*cos(t)*cos(t)*cos(3*t)
+y = d*cos(t)*cos(t)*cos(t)*sin(3*t)
 z = 0
-eqn_8_5 = Matrix([w,x,y,z])
+eqn_cay = Matrix([w,x,y,z])
 
+#%% Define what we're solving for
+u = Matrix([a,b,0,0])  # given rotation about x and y
+#pprint(u)
+
+
+#%% Define the equations
+RHS = quatrotate(u,eqn_cir)
+
+# travis - this is where you enter the curve:
+
+LHS = eqn_8bow  
+
+#pprint(LHS)
+#print('=')
+#pprint(RHS)
+
+EQNS = LHS-RHS
+#pprint(EQNS)
+
+#%% Solve for u
+solutions = nonlinsolve([EQNS[1], EQNS[2]], [a, b])
+#pprint(solutions.args[0].simplify())
+
+
+#%% Try it
+
+quaternion_terms = solutions.args[0].simplify()
+#pprint(quaternion_terms)
+QED = quatrotate(Matrix([quaternion_terms[0],quaternion_terms[1],0,0]),eqn_cir)
+QED = QED.subs(d, 2)
+pprint(QED)
+plot_parametric((QED[1], QED[2]),(t,-np.pi,np.pi))
+    
+
+
+
+
+#%% For Later
+
+# ===
+# 3 D 
+# ===
+
+# # Vivians curve (this looks like my lemni arch?)
+# # https://mathworld.wolfram.com/VivianisCurve.html
+# # -------------
+# w = 0
+# x = d*(1+cos(t))
+# y = d*sin(t)
+# z = 2*d*sin(t/2)
+# eqn_viv = Matrix([w,x,y,z])
 
 # # lemniscate of Booth (for later exploration)
+# http://www.iosrjournals.org/iosr-jm/papers/Vol6-issue2/G0624353.pdf
 
 # #circle
 # ca = d
@@ -138,48 +184,6 @@ eqn_8_5 = Matrix([w,x,y,z])
 
 
 
-#%% circle with radius d
-# ----------------------
-w = 0
-x = d*cos(t)
-y = d*sin(t)
-z = 0
-eqn_cir = Matrix([w,x,y,z])
-#pprint(eqn_cir)
-
-#%% unknown parameters (for which we will solve)
-u = Matrix([a,b,0,0])  # given rotation about x and y
-#u2 = quatjugate(u1)
-#pprint(u)
-#pprint(u2)
-
-
-
-
-'''
-Unnecessary complicated thing:
-Let us solve for a, b that generate a hypotrochoidal curves as
-    a function of projection of quaternion rotations around x,y
-
-'''
-#%%
-RHS = quatrotate(u,eqn_cir)
-LHS = eqn_8_5
-#pprint(LHS)
-#print('=')
-#pprint(RHS)
-
-EQNS = LHS-RHS
-#pprint(EQNS)
-
-#%%
-solutions = nonlinsolve([EQNS[1], EQNS[2]], [a, b])
-
-#equations = Eq(EQNS[1],EQNS[2],EQNS[3])
-#solutions = solve(equations, a)
-#solutions.args[0] # when not a list
-#pprint(solutions)
-pprint(solutions.args[0].simplify())
 
 #%% plot stuff
 
@@ -251,12 +255,6 @@ pprint(solutions.args[0].simplify())
 
 
 
-
-
-
-
-
-
 # test examples
 # --------
 # var('w x y z')
@@ -268,6 +266,15 @@ pprint(solutions.args[0].simplify())
 
 
     
-
+# LEGACY
+# # hypotrochoidal curves
+# # ----------------------
+# psi = (R-r)/r
+# w = 0
+# x = (R-r)*cos(t)+d*cos(psi*t)
+# y = (R-r)*sin(t)-d*sin(psi*t)
+# z = 0
+# eqn_hyp = Matrix([w,x,y,z])
+# #pprint(eqn_hyp)
 
 
