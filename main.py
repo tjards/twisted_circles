@@ -62,7 +62,10 @@ def quatrotate(q, p):
 # variables
 #var('a b d d2 r R t psi t z', positive = True)
 # let is use the "d" parameter as the radius of reference circle
-a, b, d, d2, r, R, t, psi, t = symbols('a b d d2 r R t psi t')
+#a, b, d, d2, r, R, t, psi, t = symbols('a b d d2 r R t psi t')
+d, d2, r, R, psi, t = symbols('d d2 r R t psi')
+a, b = symbols('a b', nonzero=True)
+t = symbols('t', nonzero=True)
 
 
 #%% circle with radius d
@@ -86,9 +89,10 @@ eqn_8ger = Matrix([w,x,y,z])
 # 2D // lemniscate of Bernoulli
 # -----------------------
 # d is half-width: distance from crossing point to horiz extreme (tunable)
+d1 = d
 w = 0
-x = d*cos(t)/(1+sin(t)*sin(t))
-y = d*sin(t)*cos(t)/(1+sin(t)*sin(t))
+x = d1*cos(t)/(1+sin(t)*sin(t))
+y = d1*sin(t)*cos(t)/(1+sin(t)*sin(t))
 z = 0 #0.5*d*sin(t)*sin(t)
 eqn_8ber = Matrix([w,x,y,z])
 #pprint(eqn_8_2)
@@ -100,7 +104,7 @@ d2 = d
 w = 0
 x = d*cos(t)
 y = ((d*d)/d2)*cos(t)*cos(t)*sin(t)
-z = 0
+z = 0#0.5*d*sin(t)*sin(t)
 eqn_8bow = Matrix([w,x,y,z])
 
 # 2D // Cayley's sextet
@@ -120,7 +124,7 @@ u = Matrix([a,b,0,0])  # given rotation about x and y
 RHS = quatrotate(u,eqn_cir)
 
 # travis - this is where you enter the curve:
-LHS = eqn_8ger 
+LHS = eqn_8ger
 
 #pprint(LHS)
 #print('=')
@@ -130,7 +134,8 @@ EQNS = LHS-RHS
 #pprint(EQNS)
 
 #%% Solve for u
-solutions = nonlinsolve([EQNS[1], EQNS[2]], [a, b])
+solutions = nonlinsolve([EQNS[1], EQNS[2]], [a, b], S.Reals)
+#solutions = nonlinsolve([EQNS[1], EQNS[2], EQNS[3]], [a, b])
 #pprint(solutions.args[0].simplify())
 
 
@@ -139,6 +144,7 @@ radius = 4
 quaternion_terms = solutions.args[0].simplify()
 #pprint(quaternion_terms)
 QED = quatrotate(Matrix([quaternion_terms[0],quaternion_terms[1],0,0]),eqn_cir)
+#QED = quatrotate(Matrix([quaternion_terms[0],quaternion_terms[1],quaternion_terms[2],0]),eqn_cir)
 pprint(QED)
 QED = QED.subs(d, radius)
 # plot the 2-d projection
@@ -167,6 +173,46 @@ for i in np.arange(0,2*np.pi,0.1):
 plt.show()
 
  
+#%% confirm unit
+isunit = sqrt(solutions.args[0][0]*solutions.args[0][0]+solutions.args[0][1]*solutions.args[0][1]).simplify()
+if isunit == 1:
+    print('confirmed unit quaterion')
+else:
+    print('warning: not a unit quaterion')
+    
+#%% try by alternate means (TBD)
+# Given p2 = q * p * q^(-1), solve for q
+
+# NOTE: this doesn't work yet; there is an error somewhere
+
+alternate = 0
+
+if alternate == 1:
+
+    #rotation axis (3D vector v) is given by the cross product of vectors p and p2, normalized to length 1:
+    p = Matrix([eqn_cir[1],eqn_cir[2],eqn_cir[3]])
+    p2 = Matrix([LHS[1],LHS[2],LHS[3]]) 
+    norm_p = sqrt(p.dot(p))
+    norm_p2 = sqrt(p2.dot(p2))
+    
+    v = p.cross(p2)
+    norm_v = sqrt(v.dot(v))
+    v_norm = v / norm_v 
+
+    costheta = (p.dot(p2))/(norm_p*norm_v)
+    theta = acos(costheta)
+    temp = v_norm*sin(theta/2)
+    q = Matrix([cos(theta/2),temp[0],temp[1],temp[2]])
+    print(q)
+
+
+#The rotation angle θ can be calculated from the dot product of the vector parts of p and p2:
+
+
+
+#From the rotation axis v and angle θ, we can construct the rotation quaternion q:
+
+
 
 
 #%% For Later
