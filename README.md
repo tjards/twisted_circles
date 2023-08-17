@@ -11,8 +11,10 @@ which can be shown to be a 1-parameter homeomorphism.
 The problem is indeterminate, so there are multiple solutions; we randomly
 select for the purpose of plotting the resultant curves.
 
-Points are expressed as "pure" quaternions (i.e. p=(0,x,y,z))
-Rotation are expressed as "unit" quaternions (i.e. norm(q) = 1)
+# Notation
+- Points on the curves (p) are expressed as "pure" quaternions (i.e. p=(0,x,y,z)).
+- Rotations (q) are expressed as "unit" quaternions (i.e. norm(q) = 1).
+- We perform a quaternion rotation using Hamilton products: p2 = q*p1*q'
 
 For this work, I colloborated with OpenAI's GPT-3.5 model via the [OpenAI API](https://chat.openai.com/)
 
