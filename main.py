@@ -82,7 +82,7 @@ eqn_cir = Matrix([w,x,y,z])
 w = 0
 x = d*cos(t)
 y = d*sin(t)*cos(t)
-z = 0.5*d*sin(t)*sin(t)
+z = 0 #0.5*d*sin(t)*sin(t)
 eqn_8ger = Matrix([w,x,y,z])
 #pprint(eqn_8_1)
 
