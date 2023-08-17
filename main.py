@@ -82,7 +82,7 @@ eqn_cir = Matrix([w,x,y,z])
 w = 0
 x = d*cos(t)
 y = d*sin(t)*cos(t)
-z = 0#0.5*d*sin(t)*sin(t)
+z = 0.5*d*sin(t)*sin(t)
 eqn_8ger = Matrix([w,x,y,z])
 #pprint(eqn_8_1)
 
@@ -124,7 +124,7 @@ u = Matrix([a,b,0,0])  # given rotation about x and y
 RHS = quatrotate(u,eqn_cir)
 
 # travis - this is where you enter the curve:
-LHS = eqn_8ger
+LHS = eqn_8bow
 
 #pprint(LHS)
 #print('=')
@@ -140,12 +140,36 @@ solutions = nonlinsolve([EQNS[1], EQNS[2]], [a, b], S.Reals)
 
 
 #%% Try it
-radius = 4
+radius = 5
 quaternion_terms = solutions.args[0].simplify()
-#pprint(quaternion_terms)
+
+#try randome ones 
+#quaternion_terms = Matrix([cos(t/2),sin(t/2),0,0])  #<--- known Gerono
+#quaternion_terms = Matrix([cos(t),sin(t)*cos(t),0,0]) #< --- flat bowtie type
+#quaternion_terms = Matrix([cos(t/2),sin(t/2)*cos(2*t),0,0]) #< --- funky #1
+
+
+
+#quaternion_terms = Matrix([cos(t/2),sin(t/2),0,0])
+#quaternion_terms = Matrix([cos(t/2),sin(t/2),0,0])
+#quaternion_terms = Matrix([cos(t),1*sin(t)*cos(t),0,0]) #<-- bow tie
+#quaternion_terms = Matrix([cos(t),0.5*sin(2*t),0,0]) #<-- bow tie?
+#quaternion_terms = Matrix([cos(2*t),sin(t/2)*cos(t/2),0,0]) #<-- cool weird one
+#quaternion_terms = Matrix([cos(t),sin(t/2)*cos(t),0,0]) #<-- cool weird one
+
+# confirm unit
+isunit = sqrt(quaternion_terms[0]*quaternion_terms[0]+quaternion_terms[1]*quaternion_terms[1]).simplify()
+if isunit == 1:
+    print('confirmed unit quaterion')
+else:
+    print('warning: not a unit quaterion')
+pprint(quaternion_terms)
+
+#%%
+
 QED = quatrotate(Matrix([quaternion_terms[0],quaternion_terms[1],0,0]),eqn_cir)
 #QED = quatrotate(Matrix([quaternion_terms[0],quaternion_terms[1],quaternion_terms[2],0]),eqn_cir)
-pprint(QED)
+#pprint(QED)
 QED = QED.subs(d, radius)
 # plot the 2-d projection
 plot_parametric((QED[1], QED[2]),(t,-np.pi,np.pi))
@@ -160,25 +184,27 @@ ax.set_zlim3d([-5, 5])
 x = np.array([0,radius,0,0])
 # for all angles
 for i in np.arange(0,2*np.pi,0.1):
+#for i in np.arange(-np.pi,np.pi,0.1):
     
     x_prev = x
     eqn_cir_ = eqn_cir.subs({d:radius, t:i})
     quaternion_terms_ = quaternion_terms.subs(t, i)
     pos = quatrotate(np.array([quaternion_terms_[0],quaternion_terms_[1],0,0]),eqn_cir_)
+    #pos = quatrotate(np.array([quaternion_terms_[0]*quaternion_terms_[0],quaternion_terms_[1]*quaternion_terms_[1],0,0]),eqn_cir_)
     x = pos
-    plt.pause(0.01)
+    plt.pause(0.001)
     ax.plot([x_prev[1],x[1]],[x_prev[2], x[2]],[x_prev[3], x[3]],'-b.')
     
 #ax.title('Curve')
 plt.show()
 
  
-#%% confirm unit
-isunit = sqrt(solutions.args[0][0]*solutions.args[0][0]+solutions.args[0][1]*solutions.args[0][1]).simplify()
-if isunit == 1:
-    print('confirmed unit quaterion')
-else:
-    print('warning: not a unit quaterion')
+# #%% confirm unit
+# isunit = sqrt(solutions.args[0][0]*solutions.args[0][0]+solutions.args[0][1]*solutions.args[0][1]).simplify()
+# if isunit == 1:
+#     print('confirmed unit quaterion')
+# else:
+#     print('warning: not a unit quaterion')
     
 #%% try by alternate means (TBD)
 # Given p2 = q * p * q^(-1), solve for q
@@ -188,22 +214,22 @@ else:
 alternate = 0
 
 if alternate == 1:
+    
+    #p, p2, v, costheta, angle, q = symbols('p p2 v costheta angle q', nonzero=True, real=True)
 
     #rotation axis (3D vector v) is given by the cross product of vectors p and p2, normalized to length 1:
     p = Matrix([eqn_cir[1],eqn_cir[2],eqn_cir[3]])
     p2 = Matrix([LHS[1],LHS[2],LHS[3]]) 
-    norm_p = sqrt(p.dot(p))
-    norm_p2 = sqrt(p2.dot(p2))
     
     v = p.cross(p2)
-    norm_v = sqrt(v.dot(v))
-    v_norm = v / norm_v 
+    v = v.norm()
 
-    costheta = (p.dot(p2))/(norm_p*norm_v)
-    theta = acos(costheta)
-    temp = v_norm*sin(theta/2)
-    q = Matrix([cos(theta/2),temp[0],temp[1],temp[2]])
-    print(q)
+    costheta = (p.dot(p2))
+    costheta = costheta/(norm_p*norm_v)
+    angle = acos(costheta / (p.norm() * p2.norm()))
+    q = Matrix([cos(angle/2), v[0]*sin(angle/2), v[1]*sin(angle/2), v[2]*sin(angle/2)])
+
+    pprint(q)
 
 
 #The rotation angle θ can be calculated from the dot product of the vector parts of p and p2:
@@ -212,8 +238,69 @@ if alternate == 1:
 
 #From the rotation axis v and angle θ, we can construct the rotation quaternion q:
 
+#%%
 
 
+
+# basic = quatrotate(np.array([a,b,0,0]),eqn_cir)
+# pprint(basic)
+
+
+# proove_bow = Matrix([cos(t),sin(t)*cos(t),0,0]) #<-- bow tie
+# proove_bow_ = quatrotate(proove_bow,eqn_cir)
+# pprint(proove_bow_)
+
+#%% Solve for a,b directly from the points
+
+# p2 = symbols('p2')
+
+# # this is the desired equations (pure quaternion)
+# p2 = Matrix(eqn_8ger[1:4])
+
+# # this is the original equation (pure quaternion)
+# p1 = Matrix(eqn_cir[1:4])
+
+# # compute the angle (the norms should be equal to d?, but keep for now)
+# theta = p1.dot(p2)/(p1.norm() * p2.norm())
+# #theta = p1.dot(p2)/d
+
+# # compute the axis of rotation
+# r = p1.cross(p2)
+# rhat = r/r.norm()
+
+# # q_direct
+# q1 = cos(theta/2).simplify()
+# q2 = rhat[0]*sin(theta/2).simplify()
+# q3 = rhat[1]*sin(theta/2).simplify()
+# q4 = rhat[2]*sin(theta/2).simplify()
+
+# print("a = ")
+# pprint(q1)
+# print("b = ")
+# pprint(q2)
+
+# a1, b1, a2, b2, t, t1, t2 = symbols('a1 b1 a2 b2 t t1, t2', nonzero=True)
+# eqn1 = basic.subs({a:a1, b:b1, t:t1})
+# eqn2 = basic.subs({a:a2, b:b2, t:t2})
+# solve = nonlinsolve(eqn1-eqn2, [t1, t2], S.Reals)
+# #bounded_solve = [sol.subs('n', n) for sol in solve for n in range(0, 1)]
+# #pprint(bounded_solve)
+#%%
+#pprint(solve.args[1])
+#%%
+#test = quatrotate(eqn_8bow,eqn_cir)
+#test.simplify()
+#test2 = test.subs({t:np.pi})
+#pprint(test2)
+
+#%% 
+#test = (d*d)*cos(t)*cos(t) + d*d*cos(t)*cos(t)*sin(t)*sin(t) + d*d*sin(t)*sin(t)*sin(t)*sin(t)
+#test = cos(t)*cos(t) + cos(t)*sin(t)*sin(t)
+#test = p1.cross(p2)
+#test = test.norm().simplify()
+
+
+#pprint(test)
 
 #%% For Later
 
