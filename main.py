@@ -5,9 +5,22 @@ Created on Wed Jun 28 07:35:05 2023
 
 @author: tjards
 
+This program takes the parametric equations for arbitrary simple closed 
+curves and finds the corresponding functional rotation that "deforms" 
+a circle into a 3D curve for which the 2D projection is this simple
+closed curve.
+
+The rotation is accomplished using a functional unit quaternion 
+which can be shown to be a 1-parameter homeomorphism. 
+
+The problem is indeterminate, so there are multiple solutions; we randomly
+select for the purpose of plotting the resultant curves.
+
+Points are expressed as "pure" quaternions (i.e. p=(0,x,y,z))
+Rotation are expressed as "unit" quaternions (i.e. norm(q) = 1)
+ 
 Note: Plot stuff here for exploration of various curves 
     https://www.desmos.com/calculator/65ps3jwzqn
-
 
 """
 
@@ -44,7 +57,7 @@ def quatrotate(q, p):
     
     if p.shape[0] != 4:
         print('error: express point as 4x1 quaternion')
-        print('comment: typically, just appending a zero in the first row is sufficient')
+        print('comment: for true quaternions, just appending a zero in the first row is sufficient')
     
     # rotation of point, p 
     # by quaterion, q
@@ -66,8 +79,8 @@ y = d*sin(t)
 z = 0
 eqn_cir = Matrix([w,x,y,z])
 
-#%% Inputs: Define what we're solving for
-# ---------------------------------------
+#%% Inputs: Define what we're solving for (i.e. the rotation)
+# -----------------------------------------------------------
 u = Matrix([a,b,0,0])           # given rotation about x-axis
 RHS = quatrotate(u,eqn_cir)     # this is the Right Hand Side equation
 
@@ -108,8 +121,7 @@ eqn_8bow = Matrix([w,x,y,z])
 EQNS = eqn_8bow - RHS
 SOLS.append(nonlinsolve([EQNS[1], EQNS[2]], [a, b], S.Reals).simplify())
 
-
-#%% Pull out and ensure unit quaternion (norm =1)
+#%% Pull out and ensure unit quaternion (norm = 1)
 # ------------------------------------------
 QUATS = list()
 
@@ -125,10 +137,9 @@ for i in range(0,len(SOLS)):
         print("Solution ",i," has norm ", isunit)
         quaternion_terms = Matrix([quaternion_terms[0],quaternion_terms[1]])
         quaternion_terms = quaternion_terms/quaternion_terms.norm()
-        print("... Solution ",i," has been normized ")
+        print("... Solution ",i," has been normized")
     QUATS.append(quaternion_terms)
     
-        
 #%% Print stuff
 # -------------
 radius = 4 # radius of circle to use
@@ -140,7 +151,7 @@ for i in range(0,len(QUATS)):
     QED = QED.subs(d, radius)
     plots.append(QED)       
 
-#2D
+# 2D projection
 plot_2D = plot_parametric(
                 (eqn_cir[1], eqn_cir[2]),
                 (plots[0][1], plots[0][2]),
@@ -159,7 +170,7 @@ plot_2D[3].line_color = 'green'
 plot_2D[3].label = 'Dumbell'
 plot_2D.show()
 
-#3D    
+#3D plot   
 from sympy.plotting import plot3d_parametric_line   
 plot_3D = plot3d_parametric_line(
                 (eqn_cir[1], eqn_cir[2], eqn_cir[1]*0.01, (t,-np.pi,np.pi)),
@@ -167,6 +178,7 @@ plot_3D = plot3d_parametric_line(
                 (plots[1][1], plots[1][2], plots[1][3],(t,-np.pi,np.pi)),
                 (plots[2][1], plots[2][2], plots[2][3],(t,-np.pi,np.pi)),
                 (eqn_cir[1], eqn_cir[1]*0.01, eqn_cir[2], (t,-np.pi,np.pi)),
+                title = 'Curves formed from deformed circles',
                 legend = True)           
 plot_3D[0].line_color = 'black'
 plot_3D[4].line_color = 'black'
