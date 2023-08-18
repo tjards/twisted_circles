@@ -121,14 +121,28 @@ eqn_8bow = Matrix([w,x,y,z])
 EQNS = eqn_8bow - RHS
 SOLS.append(nonlinsolve([EQNS[1], EQNS[2]], [a, b], S.Reals).simplify())
 
+# 2D // add shift
+# ------------------------
+w = 0
+x = d*cos(t)
+y = d*sin(t)*cos(t+np.pi/2)
+z = 0 #0.5*d*sin(t)*sin(t)
+eqn_8boo = Matrix([w,x,y,z])
+EQNS = eqn_8boo - RHS
+SOLS.append(nonlinsolve([EQNS[1], EQNS[2]], [a, b], S.Reals).simplify())
+
+
+
 #%% Pull out and ensure unit quaternion (norm = 1)
 # ------------------------------------------
 QUATS = list()
 
-j = 0 # some of the above will have multiple solutions; choose first
+j         = 0 # some of the above will have multiple solutions; choose first
+normalize = 0 # enforce unit quaternions?
+
 
 for i in range(0,len(SOLS)):
-    j = random.randint(0, 3)
+    #j = random.randint(0, 3)
     quaternion_terms = SOLS[i].args[j].simplify()
     isunit = sqrt(quaternion_terms[0]*quaternion_terms[0]+quaternion_terms[1]*quaternion_terms[1]).simplify()
     if isunit == 1:
@@ -136,13 +150,16 @@ for i in range(0,len(SOLS)):
     else:
         print("Solution ",i," has norm ", isunit)
         quaternion_terms = Matrix([quaternion_terms[0],quaternion_terms[1]])
-        quaternion_terms = quaternion_terms/quaternion_terms.norm()
-        print("... Solution ",i," has been normized")
+        if normalize == 1:
+            quaternion_terms = quaternion_terms/quaternion_terms.norm()
+            print("... Solution ",i," has been normized")
+        else:
+            print("... Solution ",i," has been not been normized")
     QUATS.append(quaternion_terms)
     
 #%% Print stuff
 # -------------
-radius = 4 # radius of circle to use
+radius = 3 # radius of circle to use
 plots = list()
 eqn_cir = eqn_cir.subs(d, radius)
 
@@ -157,6 +174,7 @@ plot_2D = plot_parametric(
                 (plots[0][1], plots[0][2]),
                 (plots[1][1], plots[1][2]),
                 (plots[2][1], plots[2][2]),
+                (plots[3][1], plots[3][2]),
                 (t,-np.pi,np.pi), 
                 legend = True,
                 title = 'Projection onto x-y plane')           
@@ -168,6 +186,8 @@ plot_2D[2].line_color = 'red'
 plot_2D[2].label = 'Bernoulli'
 plot_2D[3].line_color = 'green'
 plot_2D[3].label = 'Dumbell'
+plot_2D[4].line_color = 'cyan'
+plot_2D[4].label = 'Lemniscatic arch'
 plot_2D.show()
 
 #3D plot   
@@ -177,21 +197,48 @@ plot_3D = plot3d_parametric_line(
                 (plots[0][1], plots[0][2], plots[0][3], (t,-np.pi,np.pi)),
                 (plots[1][1], plots[1][2], plots[1][3],(t,-np.pi,np.pi)),
                 (plots[2][1], plots[2][2], plots[2][3],(t,-np.pi,np.pi)),
+                (plots[3][1], plots[3][2], plots[3][3],(t,-np.pi,np.pi)),
                 (eqn_cir[1], eqn_cir[1]*0.01, eqn_cir[2], (t,-np.pi,np.pi)),
                 title = 'Curves formed from deformed circles',
                 legend = True)           
 plot_3D[0].line_color = 'black'
-plot_3D[4].line_color = 'black'
+plot_3D[5].line_color = 'black'
 plot_3D[0].label = 'Circle'
-plot_3D[4].label = ''
+plot_3D[5].label = ''
 plot_3D[1].line_color = 'blue'
 plot_3D[1].label = 'Gerono'
 plot_3D[2].line_color = 'red'
 plot_3D[2].label = 'Bernoulli'
 plot_3D[3].line_color = 'green'
 plot_3D[3].label = 'Dumbell'
+plot_3D[4].line_color = 'cyan'
+plot_3D[4].label = 'Lemniscatic arch'
 plot_3D.show()
 
+#%% Animate one curve
+# -------------------
+pick = 3 # which curve to pick from the list?
+
+#plot the 3-d trajectory
+ax = plt.figure().add_subplot(projection='3d')
+ax.set_xlim3d([-5, 5])
+ax.set_ylim3d([-5, 5])
+ax.set_zlim3d([-5, 5])
+
+# initial state (cartesian)
+x = np.array([0,radius,0,0])
+for i in np.arange(0,2*np.pi,0.1):
+    quaternion_terms = QUATS[pick]
+    x_prev = x
+    eqn_cir_ = eqn_cir.subs({d:radius, t:i})
+    quaternion_terms_ = quaternion_terms.subs({d:radius, t:i})
+    pos = quatrotate(np.array([quaternion_terms_[0],quaternion_terms_[1],0,0]),eqn_cir_)
+    x = pos
+    plt.pause(0.001)
+    ax.plot([x_prev[1],x[1]],[x_prev[2], x[2]],[x_prev[3], x[3]],'-b.')
+    
+#ax.title('Curve')
+plt.show()
 
 
 
