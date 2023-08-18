@@ -116,11 +116,11 @@ d2 = d
 w = 0
 x = d*cos(t)
 y = ((d*d)/d2)*cos(t)*cos(t)*sin(t)
+#y = ((d*d))*cos(t)*cos(t)*sin(t)
 z = 0 #0.5*d*sin(t)*sin(t)
 eqn_8bow = Matrix([w,x,y,z])
 EQNS = eqn_8bow - RHS
 SOLS.append(nonlinsolve([EQNS[1], EQNS[2]], [a, b], S.Reals).simplify())
-
 
 # 2D // Lemniscatic arch (note the phase shift)
 # ---------------------------------------------

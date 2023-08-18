@@ -29,9 +29,13 @@ Here are some results. Note that the Bernoulli curve does not make use of a
 pure quaternion and so is not strictly homeomorphic. 
 
 <p float="center">
-    <img src="3d_2.png" width="50%">
+    <img src="3d_3.png" width="50%">
 </p>
 
 <p float="center">
-    <img src="2d_2.png" width="50%">
+    <img src="2d_3_yz.png" width="50%">
+</p>
+
+<p float="center">
+    <img src="2d_3_xy.png" width="50%">
 </p>
