@@ -100,7 +100,7 @@ SOLS.append(nonlinsolve([EQNS[1], EQNS[2]], [a, b], S.Reals).simplify())
 # 2D // lemniscate of Bernoulli
 # -----------------------
 # d is half-width: distance from crossing point to horiz extreme (tunable)
-d1 = 2*d
+d1 = d
 w = 0
 x = d1*cos(t)/(1+sin(t)*sin(t))
 y = d1*sin(t)*cos(t)/(1+sin(t)*sin(t))
@@ -126,14 +126,11 @@ SOLS.append(nonlinsolve([EQNS[1], EQNS[2]], [a, b], S.Reals).simplify())
 # ---------------------------------------------
 w = 0
 x = d*cos(t)
-y = d*sin(t)*cos(t+pi/3)
+y = d*sin(t)*cos(t+pi/2)
 z = 0 #0.5*d*sin(t)*sin(t)
 eqn_8boo = Matrix([w,x,y,z])
 EQNS = eqn_8boo - RHS
 SOLS.append(nonlinsolve([EQNS[1], EQNS[2]], [a, b], S.Reals).simplify())
-
-
-
 
 
 #%% Pull out and ensure unit quaternion (norm = 1)
@@ -180,7 +177,7 @@ plot_2D = plot_parametric(
                 (plots[3][1], plots[3][2]),
                 (t,-np.pi,np.pi), 
                 legend = True,
-                title = 'Projection onto x-y plane')           
+                title = 'Curves projected onto x-y plane')           
 plot_2D[0].line_color = 'black'
 plot_2D[0].label = 'Circle'
 plot_2D[1].line_color = 'blue'
@@ -190,7 +187,7 @@ plot_2D[2].label = 'Bernoulli'
 plot_2D[3].line_color = 'green'
 plot_2D[3].label = 'Dumbell'
 plot_2D[4].line_color = 'magenta'
-plot_2D[4].label = 'Lemniscatic arch'
+plot_2D[4].label = 'Gerono (shifted)'
 plot_2D.show()
 
 
@@ -203,7 +200,7 @@ plot_2D = plot_parametric(
                 (plots[3][2], plots[3][3]),
                 (t,-np.pi,np.pi), 
                 legend = True,
-                title = 'Projection onto y-z plane')           
+                title = 'Curves projected onto y-z plane')           
 plot_2D[0].line_color = 'black'
 plot_2D[0].label = 'Circle'
 plot_2D[1].line_color = 'blue'
@@ -213,7 +210,7 @@ plot_2D[2].label = 'Bernoulli'
 plot_2D[3].line_color = 'green'
 plot_2D[3].label = 'Dumbell'
 plot_2D[4].line_color = 'magenta'
-plot_2D[4].label = 'Lemniscatic arch'
+plot_2D[4].label = 'Gerono (shifted)'
 plot_2D.show()
 
 
@@ -226,7 +223,7 @@ plot_3D = plot3d_parametric_line(
                 (plots[2][1], plots[2][2], plots[2][3],(t,-np.pi,np.pi)),
                 (plots[3][1], plots[3][2], plots[3][3],(t,-np.pi,np.pi)),
                 (eqn_cir[1], eqn_cir[1]*0.01, eqn_cir[2], (t,-np.pi,np.pi)),
-                title = 'Curves formed from deformed circles',
+                title = 'Curves in 3D',
                 legend = True)           
 plot_3D[0].line_color = 'black'
 plot_3D[5].line_color = 'black'
@@ -239,7 +236,7 @@ plot_3D[2].label = 'Bernoulli'
 plot_3D[3].line_color = 'green'
 plot_3D[3].label = 'Dumbell'
 plot_3D[4].line_color = 'magenta'
-plot_3D[4].label = 'Lemniscatic arch'
+plot_3D[4].label = 'Gerono (shifted)'
 plot_3D.show()
 
 #%% Animate one curve
