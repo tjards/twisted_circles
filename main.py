@@ -121,15 +121,18 @@ eqn_8bow = Matrix([w,x,y,z])
 EQNS = eqn_8bow - RHS
 SOLS.append(nonlinsolve([EQNS[1], EQNS[2]], [a, b], S.Reals).simplify())
 
-# 2D // add shift
-# ------------------------
+
+# 2D // Lemniscatic arch (note the phase shift)
+# ---------------------------------------------
 w = 0
 x = d*cos(t)
-y = d*sin(t)*cos(t+np.pi/2)
+y = d*sin(t)*cos(t+pi/3)
 z = 0 #0.5*d*sin(t)*sin(t)
 eqn_8boo = Matrix([w,x,y,z])
 EQNS = eqn_8boo - RHS
 SOLS.append(nonlinsolve([EQNS[1], EQNS[2]], [a, b], S.Reals).simplify())
+
+
 
 
 
@@ -168,7 +171,7 @@ for i in range(0,len(QUATS)):
     QED = QED.subs(d, radius)
     plots.append(QED)       
 
-# 2D projection
+# 2D projection (x-y)
 plot_2D = plot_parametric(
                 (eqn_cir[1], eqn_cir[2]),
                 (plots[0][1], plots[0][2]),
@@ -186,9 +189,33 @@ plot_2D[2].line_color = 'red'
 plot_2D[2].label = 'Bernoulli'
 plot_2D[3].line_color = 'green'
 plot_2D[3].label = 'Dumbell'
-plot_2D[4].line_color = 'cyan'
+plot_2D[4].line_color = 'magenta'
 plot_2D[4].label = 'Lemniscatic arch'
 plot_2D.show()
+
+
+# 2D projection
+plot_2D = plot_parametric(
+                (eqn_cir[1], eqn_cir[2]),
+                (plots[0][2], plots[0][3]),
+                (plots[1][2], plots[1][3]),
+                (plots[2][2], plots[2][3]),
+                (plots[3][2], plots[3][3]),
+                (t,-np.pi,np.pi), 
+                legend = True,
+                title = 'Projection onto y-z plane')           
+plot_2D[0].line_color = 'black'
+plot_2D[0].label = 'Circle'
+plot_2D[1].line_color = 'blue'
+plot_2D[1].label = 'Gerono'
+plot_2D[2].line_color = 'red'
+plot_2D[2].label = 'Bernoulli'
+plot_2D[3].line_color = 'green'
+plot_2D[3].label = 'Dumbell'
+plot_2D[4].line_color = 'magenta'
+plot_2D[4].label = 'Lemniscatic arch'
+plot_2D.show()
+
 
 #3D plot   
 from sympy.plotting import plot3d_parametric_line   
@@ -211,7 +238,7 @@ plot_3D[2].line_color = 'red'
 plot_3D[2].label = 'Bernoulli'
 plot_3D[3].line_color = 'green'
 plot_3D[3].label = 'Dumbell'
-plot_3D[4].line_color = 'cyan'
+plot_3D[4].line_color = 'magenta'
 plot_3D[4].label = 'Lemniscatic arch'
 plot_3D.show()
 
